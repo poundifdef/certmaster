@@ -1,7 +1,36 @@
 {
+    "email": "hello@example.com",
     "domain": "example.com",
+    "dummy": false,
+    "stage": true,
     "dns": {
-
+        "provider": "route53",
+        "AWS_ACCESS_KEY_ID": "ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY": "SECRET_KEY"
     },
-    "destinations": []
+    "destinations": [
+        {
+            "provider": "email",
+            "from": "from@example.com",
+            "host": "email-smtp.us-east-1.amazonaws.com",
+            "port": "587",
+            "username": "SMTP_USER",
+            "password": "SMTP_PASSWORD",
+            "to": "to@example.com"
+        },
+        {
+            "provider": "hetzner",
+            "api_token": "HETZER_WRITABLE_API_TOKEN",
+            "load_balancer_id": "000000"
+        },
+        {
+            "provider": "sftp",
+            "user": "root",
+            "host": "1.1.1.1",
+            "port": "22",
+            "private_key": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----",
+            "certificate_destination": "/path/to/certificate.txt",
+            "private_key_destination": "/path/to/private.txt"
+        }
+    ]
 }
