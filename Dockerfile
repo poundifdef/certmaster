@@ -1,12 +1,14 @@
 FROM golang:1.21 as build
+
 WORKDIR /build
+
 # Copy dependencies list
 COPY go.mod go.sum ./
 
-COPY . .
-
 # Installs Go dependencies
 RUN go mod download
+
+COPY . .
 
 # Build with optional lambda.norpc tag
 RUN go build -tags lambda.norpc -o certmaster certmaster
