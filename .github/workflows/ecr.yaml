@@ -2,7 +2,8 @@ name: Push to ECR
 
 on:
   push:
-    branches: [main]
+    branches: [x]
+    # branches: [main]
 
 jobs:
   build:
