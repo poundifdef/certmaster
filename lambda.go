@@ -21,5 +21,5 @@ func HandleLambdaEvent(event *models.CertRequest) (*models.CertResponse, error) 
 		status = "Failed"
 	}
 
-	return &models.CertResponse{Status: status, Message: err.Error()}, err
+	return &models.CertResponse{Status: status}, err
 }

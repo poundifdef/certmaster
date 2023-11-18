@@ -64,8 +64,6 @@ func uploadCertToDestination(request models.CertRequest, cert *certificate.Resou
 }
 
 func requestCertificates(domain string, email string, dnsProvider string, stage bool) (*certificate.Resource, error) {
-	log.Println("Environment variables", os.Environ())
-
 	// Create a user for ACME
 	user := newUser(email)
 

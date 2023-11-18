@@ -10,8 +10,7 @@ type CertRequest struct {
 }
 
 type CertResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
+	Status string `json:"status"`
 }
 
 type DestinationConfig struct {
