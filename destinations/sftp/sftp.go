@@ -20,6 +20,10 @@ type Destination struct {
 	PrivateKeyDestination  string `mapstructure:"private_key_destination" description:"Full path, including file name, for private key"`
 }
 
+func (d Destination) Description() string {
+	return "Uploads certificate via SFTP to a remote directory"
+}
+
 func (d Destination) Upload(request models.CertRequest, cert *certificate.Resource) error {
 	// Parse private key
 	signer, err := ssh.ParsePrivateKey([]byte(d.PrivateKey))

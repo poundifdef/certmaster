@@ -13,6 +13,11 @@ type CertResponse struct {
 	Status string `json:"status"`
 }
 
+type DestinationDescription struct {
+	Name        string
+	Description string
+}
+
 type DestinationConfig struct {
 	Field        string
 	Description  string

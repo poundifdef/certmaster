@@ -22,6 +22,10 @@ type Destination struct {
 	SMTPPassword string `credential:"true" mapstructure:"password" description:"SMTP Password"`
 }
 
+func (d Destination) Description() string {
+	return "Emails certificates via SMTP to an address"
+}
+
 func (d Destination) Upload(request models.CertRequest, cert *certificate.Resource) error {
 	subject := "Certificate for " + request.Domain
 	body := fmt.Sprintf(`

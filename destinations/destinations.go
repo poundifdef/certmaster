@@ -13,23 +13,43 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-func getDestination(dest string) Destination {
-	switch dest {
-	case "email":
-		return email.Destination{}
-	case "hetzner":
-		return hetzner.Destination{}
-	case "sftp":
-		return sftp.Destination{}
-	default:
+// Reflection magic: https://stackoverflow.com/a/23031445/3788
+
+var typeRegistry = map[string]reflect.Type{
+	"email":   reflect.TypeOf(email.Destination{}),
+	"hetzner": reflect.TypeOf(hetzner.Destination{}),
+	"sftp":    reflect.TypeOf(sftp.Destination{}),
+}
+
+func ListDestinations() []models.DestinationDescription {
+	rc := make([]models.DestinationDescription, len(typeRegistry))
+
+	i := 0
+	for k := range typeRegistry {
+		destination := GetDestination(k)
+		rc[i] = models.DestinationDescription{
+			Name:        k,
+			Description: destination.Description(),
+		}
+		i += 1
+	}
+
+	return rc
+}
+
+func GetDestination(dest string) Destination {
+	destinationType, ok := typeRegistry[dest]
+	if !ok {
 		return nil
 	}
+	v := reflect.New(destinationType).Elem()
+	return v.Interface().(Destination)
 }
 
 func ListConfigFields(providerName string) []models.DestinationConfig {
 	rc := []models.DestinationConfig{}
 
-	provider := getDestination(providerName)
+	provider := GetDestination(providerName)
 	if provider != nil {
 		st := reflect.TypeOf(provider)
 		for i := 0; i < st.NumField(); i++ {
@@ -52,7 +72,7 @@ func ListConfigFields(providerName string) []models.DestinationConfig {
 func Upload(request models.CertRequest, cert *certificate.Resource, config map[string]string) error {
 	providerName := config["provider"]
 
-	var d Destination = getDestination(providerName)
+	var d Destination = GetDestination(providerName)
 	if d == nil {
 		return errors.New("Destination does not exist")
 	}
@@ -66,5 +86,6 @@ func Upload(request models.CertRequest, cert *certificate.Resource, config map[s
 }
 
 type Destination interface {
+	Description() string
 	Upload(request models.CertRequest, cert *certificate.Resource) error
 }

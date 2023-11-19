@@ -24,6 +24,10 @@ type Destination struct {
 	LoadBalancerID string `mapstructure:"load_balancer_id" description:"ID of load balancer to replace certificate"`
 }
 
+func (d Destination) Description() string {
+	return "Replaces certificate in a Hetzner load balancer with new one of the same domain"
+}
+
 func (d Destination) Upload(request models.CertRequest, cert *certificate.Resource) error {
 
 	client := hcloud.NewClient(hcloud.WithToken(d.APIToken))
