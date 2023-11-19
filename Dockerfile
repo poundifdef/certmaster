@@ -11,9 +11,9 @@ RUN go mod download
 COPY . .
 
 # Build with optional lambda.norpc tag
-RUN go build -tags lambda.norpc -o certmaster certmaster
+RUN go build -tags lambda.norpc -o certmaster github.com/poundifdef/certmaster
 
 # Copy artifacts to a clean image
 FROM public.ecr.aws/lambda/provided:al2023
 COPY --from=build /build/certmaster ./certmaster
-ENTRYPOINT [ "./certmaster", "lambda" ]
+ENTRYPOINT ["./certmaster", "lambda"]

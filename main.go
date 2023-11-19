@@ -1,10 +1,11 @@
 package main
 
 import (
-	"certmaster/models"
 	"encoding/json"
 	"log"
 	"os"
+
+	"github.com/poundifdef/certmaster/models"
 
 	"github.com/aws/aws-lambda-go/lambda"
 

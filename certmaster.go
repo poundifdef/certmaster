@@ -1,13 +1,14 @@
 package main
 
 import (
-	"certmaster/destinations"
-	"certmaster/models"
 	"crypto"
 	"errors"
 	"log"
 	"log/slog"
 	"os"
+
+	"github.com/poundifdef/certmaster/destinations"
+	"github.com/poundifdef/certmaster/models"
 
 	"github.com/go-acme/lego/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"

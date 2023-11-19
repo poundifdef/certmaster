@@ -2,7 +2,6 @@ package hetzner
 
 import (
 	"bytes"
-	"certmaster/models"
 	"context"
 	"errors"
 	"fmt"
@@ -11,6 +10,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/poundifdef/certmaster/models"
 
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/hetznercloud/hcloud-go/hcloud"

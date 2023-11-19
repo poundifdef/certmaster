@@ -2,12 +2,13 @@ package email
 
 import (
 	"bytes"
-	"certmaster/models"
 	"encoding/base64"
 	"fmt"
 	"mime/multipart"
 	"net/smtp"
 	"net/textproto"
+
+	"github.com/poundifdef/certmaster/models"
 
 	"github.com/go-acme/lego/v4/certificate"
 )

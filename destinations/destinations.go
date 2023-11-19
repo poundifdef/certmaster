@@ -1,12 +1,13 @@
 package destinations
 
 import (
-	"certmaster/destinations/email"
-	"certmaster/destinations/hetzner"
-	"certmaster/destinations/sftp"
-	"certmaster/models"
 	"errors"
 	"reflect"
+
+	"github.com/poundifdef/certmaster/destinations/email"
+	"github.com/poundifdef/certmaster/destinations/hetzner"
+	"github.com/poundifdef/certmaster/destinations/sftp"
+	"github.com/poundifdef/certmaster/models"
 
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/mitchellh/mapstructure"

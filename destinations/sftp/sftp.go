@@ -1,9 +1,10 @@
 package sftp
 
 import (
-	"certmaster/models"
 	"fmt"
 	"path/filepath"
+
+	"github.com/poundifdef/certmaster/models"
 
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/pkg/sftp"

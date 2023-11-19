@@ -1,9 +1,10 @@
 package main
 
 import (
-	"certmaster/models"
 	"fmt"
 	"os"
+
+	"github.com/poundifdef/certmaster/models"
 )
 
 func HandleLambdaEvent(event *models.CertRequest) (*models.CertResponse, error) {
