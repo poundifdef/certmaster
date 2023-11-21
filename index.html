@@ -1,1 +1,84 @@
-Hello world
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Certmaster - SSL Certs without the fluff</title>
+    <style type="text/css">
+        body {
+            margin: 40px auto;
+            max-width: 650px;
+            line-height: 1.6;
+            font-size: 18px;
+            color: #444;
+            padding: 0 10px
+        }
+
+        h1,
+        h2,
+        h3 {
+            line-height: 1.2
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Manage SSL Certs without the fluff.</h1>
+        <aside>A project by <a href="https://www.github.com/poundifdef" target="_blank">@poundifdef</a></aside>
+        <p>November 2023</p>
+    </header>
+
+    <p>
+        For some reason, managing SSL certs is still a pain in the year 2023. Certmaster fixes that
+        with the first open-source tool that automates isuing certs <i>and installing
+            to destinations</i>.
+    </p>
+
+    <h2>The Problem</h2>
+
+    <ul>
+        <li>HTTP validation doesn't work behind a load balancer.</li>
+        <li>DNS validation by hand is extremely tedious.</li>
+        <li>Once you have the cert, you still need to manually upload it to
+            servers or LBs.</li>
+        <li>Web hosts make you to use <i>their</i> DNS if you want automatic
+            cert renewal.</li>
+    </ul>
+
+    <h2>The Solution</h2>
+    <ul>
+        <li>This project, <a href="https://www.github.com/poundifdef/certmaster" target="_blank">poundifdef/certmaster</a>,
+            is the
+            first
+            tool that uses DNS to automatically validate certificates and upload to destinations.</li>
+        <li><a href="https://www.certmaster.dev">https://www.certmaster.dev</a>, in beta,
+            offers a paid service for managing certs and renewal.</li>
+        <li>Certmaster supports 100+ DNS providers due to the excellent
+            <a href="https://github.com/go-acme/lego" target="_blank">go-acme/lego</a>
+            library and a growing list of destinations.
+    </ul>
+
+    <h2>Interested?</h2>
+    <ul>
+        <li><strong>Email me:</strong> jay@certmaster.dev</li>
+        <li><strong>Code:</strong> It is easy to add new destinations.
+            We want to support as many as possible. Github issues and stars help
+            too.
+        </li>
+        <li><strong>Preorder:</strong> I'm validating whether this service
+            will be commercially viable and plan to launch in February 2024.
+            A <b><a href="https://buy.stripe.com/7sIbK6cRYbRI2ti144" target="_blank">$10 preorder</a></b>
+            would go a long way towards proving there is
+            customer interest.
+        </li>
+    </ul>
+
+    <h2>Preview</h2>
+    <p>This is a current prototype for the cert manager:</p>
+    <img src="screen.gif" border="1" style="max-width: 100%;">
+
+</body>
+
+</html>
