@@ -10,7 +10,7 @@ import (
 	"github.com/poundifdef/certmaster/destinations"
 	"github.com/poundifdef/certmaster/models"
 
-	"github.com/go-acme/lego/certcrypto"
+	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/providers/dns"

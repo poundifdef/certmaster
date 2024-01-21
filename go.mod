@@ -5,14 +5,11 @@ go 1.21
 require (
 	github.com/alexflint/go-arg v1.4.3
 	github.com/aws/aws-lambda-go v1.41.0
-	github.com/go-acme/lego v2.7.2+incompatible
 	github.com/go-acme/lego/v4 v4.14.2
 	github.com/hetznercloud/hcloud-go v1.52.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/sftp v1.10.1
-	github.com/tidwall/gjson v1.17.0
-	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.14.0
+	golang.org/x/crypto v0.17.0
 )
 
 require (
@@ -144,8 +141,6 @@ require (
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.490 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/dnspod v1.0.490 // indirect
-	github.com/tidwall/match v1.1.1 // indirect
-	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/transip/gotransip/v6 v6.20.0 // indirect
 	github.com/ultradns/ultradns-go-sdk v1.5.0-20230427130837-23c9b0c // indirect
 	github.com/vinyldns/go-vinyldns v0.9.16 // indirect
@@ -157,8 +152,8 @@ require (
 	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.9.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect
 	google.golang.org/api v0.111.0 // indirect
