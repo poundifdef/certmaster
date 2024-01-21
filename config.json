@@ -30,6 +30,7 @@
             "host": "1.1.1.1",
             "port": "22",
             "private_key": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----",
+            "password": "hunter2",
             "certificate_destination": "/path/to/certificate.txt",
             "private_key_destination": "/path/to/private.txt"
         }

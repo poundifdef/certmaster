@@ -2,6 +2,7 @@ package sftp
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/poundifdef/certmaster/models"
@@ -12,6 +13,7 @@ import (
 )
 
 type Destination struct {
+	Password               string `credential:"true" mapstructure:"password" description:"SSH Password"`
 	PrivateKey             string `credential:"true" mapstructure:"private_key" description:"SSH Private Key"`
 	User                   string `mapstructure:"user" description:"Username"`
 	Host                   string `mapstructure:"host" description:"Hostname"`
@@ -25,18 +27,23 @@ func (d Destination) Description() string {
 }
 
 func (d Destination) Upload(request models.CertRequest, cert *certificate.Resource) error {
-	// Parse private key
+	sshAuth := []ssh.AuthMethod{}
+
 	signer, err := ssh.ParsePrivateKey([]byte(d.PrivateKey))
 	if err != nil {
-		return err
+		log.Println("Unable to parse private key", err)
+	} else {
+		sshAuth = append(sshAuth, ssh.PublicKeys(signer))
+	}
+
+	if d.Password != "" {
+		sshAuth = append(sshAuth, ssh.Password(d.Password))
 	}
 
 	// Create SSH client config
 	sshConfig := &ssh.ClientConfig{
-		User: d.User,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
+		User:            d.User,
+		Auth:            sshAuth,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Note: Avoid using InsecureIgnoreHostKey in production
 	}
 
