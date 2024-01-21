@@ -21,7 +21,8 @@
         {
             "provider": "hetzner",
             "api_token": "HETZER_WRITABLE_API_TOKEN",
-            "load_balancer_id": "000000"
+            "load_balancer_name": "your-lb-name",
+            "port": 443
         },
         {
             "provider": "sftp",

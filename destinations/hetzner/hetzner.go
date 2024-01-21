@@ -1,13 +1,9 @@
 package hetzner
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"strings"
 	"time"
 
@@ -15,37 +11,37 @@ import (
 
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/hetznercloud/hcloud-go/hcloud"
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
 )
 
 type Destination struct {
-	APIToken       string `credential:"true" mapstructure:"api_token" description:"Hetzner read/write API token"`
-	LoadBalancerID string `mapstructure:"load_balancer_id" description:"ID of load balancer to replace certificate"`
+	APIToken         string `credential:"true" mapstructure:"api_token" description:"Hetzner read/write API token"`
+	LoadBalancerName string `mapstructure:"load_balancer_name" description:"Name of load balancer to install certificate"`
+	Port             int    `mapstructure:"port" description:"Port number where we will listen for certificate"`
 }
 
 func (d Destination) Description() string {
-	return "Replaces certificate in a Hetzner load balancer with new one of the same domain"
+	return "Creates/updates certificate in a Hetzner load balancer"
 }
 
 func (d Destination) Upload(request models.CertRequest, cert *certificate.Resource) error {
+	ctx := context.TODO()
 
 	client := hcloud.NewClient(hcloud.WithToken(d.APIToken))
 
 	// Add new cert to Hetzner
-	certName := request.Domain + "-" + time.Now().Format("2006-01-02")
+	certName := request.Domain + " " + time.Now().Format("(2006-01-02 15:04)")
 	opts := hcloud.CertificateCreateOpts{
 		Name:        certName,
 		Certificate: string(cert.Certificate),
 		PrivateKey:  string(cert.PrivateKey),
 	}
-	hetznerCert, _, err := client.Certificate.Create(context.TODO(), opts)
+	hetznerCert, _, err := client.Certificate.Create(ctx, opts)
 	if err != nil {
 		return err
 	}
 
-	// Get all services from LB
-	lb, lbResp, err := client.LoadBalancer.Get(context.TODO(), d.LoadBalancerID)
+	// Get LB details
+	lb, _, err := client.LoadBalancer.GetByName(ctx, d.LoadBalancerName)
 	if lb == nil {
 		return errors.New("LB does not exist")
 	}
@@ -53,131 +49,88 @@ func (d Destination) Upload(request models.CertRequest, cert *certificate.Resour
 		return err
 	}
 
-	// Get LB info as JSON string
-	lbRespBody, err := io.ReadAll(lbResp.Body)
-	if err != nil {
-		return err
-	}
+	var service *hcloud.LoadBalancerService
 
-	// Find the service within the LB to update. This is just looking for a
-	// service with a cert matching the domain that we're renewing
-	// TODO: What if there are multiple services with a matching domain? We should update all of them.
-	serviceIndexToUpdate, oldCertID, err := findServiceToUpdate(client, lb, request.Domain)
-
-	// TODO: if we don't find any service, then create a new one with default values
-	if err != nil {
-		return err
-	}
-	if serviceIndexToUpdate < 0 {
-		return errors.New("Unable to find service to update")
-	}
-
-	// Get the JSON payload for the service we need to update
-	serviceJSON := gjson.Get(string(lbRespBody), fmt.Sprintf("load_balancer.services.%d", serviceIndexToUpdate)).Raw
-	log.Println(serviceJSON)
-
-	// Find which certificate ID we need to replace
-	certJSON := gjson.Get(serviceJSON, "http.certificates")
-	certIndex := -1
-	for i, v := range certJSON.Array() {
-		log.Println(v.Int())
-		if v.Int() == int64(oldCertID) {
-			certIndex = i
+	// Find the LB service with a matching port
+	for i, lbService := range lb.Services {
+		if lbService.ListenPort == d.Port {
+			service = &lb.Services[i]
 			break
 		}
 	}
 
-	// TODO: If it doesn't exist, then just add the new cert
-	if certIndex < 0 {
-		return errors.New("Unable to find old cert to replace for LB")
-	}
-
-	newServiceJSON, err := sjson.Set(serviceJSON, fmt.Sprintf("http.certificates.%d", certIndex), hetznerCert.ID)
-	if err != nil {
-		return err
-	}
-
-	// Update the LB service to replace the old certificate ID with new one
-	err = updateLBService(d.APIToken, d.LoadBalancerID, newServiceJSON)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func findServiceToUpdate(client *hcloud.Client, lb *hcloud.LoadBalancer, domain string) (int, int, error) {
-	// Hetzner LBs expose "services" to the outside world.
-	// Loop through each service in the LB and find the one that matches our domain.
-
-	// For each service
-	for serviceIndex, service := range lb.Services {
-		log.Println(service.Protocol)
-		serviceCerts := service.HTTP.Certificates
-		if serviceCerts == nil || len(serviceCerts) == 0 {
-			continue
+	// Service doesn't exist, so we will create it and add the cert
+	if service == nil {
+		log.Println("Service on port", d.Port, "does not exist on LB, creating it")
+		serviceOpts := hcloud.LoadBalancerAddServiceOpts{
+			Protocol:        hcloud.LoadBalancerServiceProtocolHTTPS,
+			ListenPort:      hcloud.Ptr[int](d.Port),
+			DestinationPort: hcloud.Ptr[int](80),
+			HTTP: &hcloud.LoadBalancerAddServiceOptsHTTP{
+				Certificates: []*hcloud.Certificate{
+					{
+						ID: hetznerCert.ID,
+					},
+				},
+			},
 		}
+		_, _, err := client.LoadBalancer.AddService(ctx, lb, serviceOpts)
+		if err != nil {
+			log.Println("Unable to create service on LB")
+		}
+		return err
+	} else {
+		// Service exists, so we update the cert
 
-		// For each certificate in the service
-		for _, serviceCertShell := range serviceCerts {
-			serviceCert, _, err := client.Certificate.GetByID(context.TODO(), serviceCertShell.ID)
+		found := false
+		for i, certShell := range service.HTTP.Certificates {
+			cert, _, err := client.Certificate.GetByID(ctx, certShell.ID)
 			if err != nil {
-				return -1, 0, err
+				log.Println("Unable to get info about cert", certShell.ID)
+				continue
 			}
-			log.Println(serviceCert.ID, serviceCert.DomainNames)
-
-			// For each domain name assiciated with the certificate
-			for _, domainName := range serviceCert.DomainNames {
+			for _, domainName := range cert.DomainNames {
 
 				// Does the domain name match the certificate?
-				if strings.EqualFold(domainName, domain) {
+				log.Println(domainName, request.Domain)
+				if strings.EqualFold(domainName, request.Domain) {
 
 					// Make sure there are not multiple domains associated with the cert.
 					// Right now we don't support certs with multiple domains.
-					if len(serviceCert.DomainNames) > 1 {
-						return -1, 0, errors.New("Cannot replace certificte that has multiple domain names")
+					if len(cert.DomainNames) > 1 {
+						return errors.New("Cannot replace certificte that has multiple domain names")
 					}
 
-					// TODO: what if there are multiple services associated with
-					// this certificate on a LB? We should instead rturn a list of
-					// services to update.
-					return serviceIndex, serviceCert.ID, nil
+					// Replace certificate
+					log.Println("Replacing cert ", cert.ID, "with cert", hetznerCert.ID)
+					service.HTTP.Certificates[i] = &hcloud.Certificate{ID: hetznerCert.ID}
+					found = true
+					break
 				}
+
+			}
+
+			if found {
+				break
 			}
 		}
-	}
 
-	return -1, 0, errors.New("Could not find service with matching domain")
-}
+		if !found {
+			// Couldn't find a matching certificate to replace, so add new one to LB
+			log.Println("Adding cert", hetznerCert.ID)
+			service.HTTP.Certificates = append(service.HTTP.Certificates, &hcloud.Certificate{ID: hetznerCert.ID})
+		}
 
-func updateLBService(bearerToken string, lbID string, jsonPayload string) error {
-	url := fmt.Sprintf("https://api.hetzner.cloud/v1/load_balancers/%s/actions/update_service", lbID)
+		// Update LB service with updated cert
+		_, _, err = client.LoadBalancer.UpdateService(ctx, lb, service.ListenPort, hcloud.LoadBalancerUpdateServiceOpts{
+			HTTP: &hcloud.LoadBalancerUpdateServiceOptsHTTP{
+				Certificates: service.HTTP.Certificates,
+			},
+		})
 
-	// Create a new HTTP request
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonPayload)))
-	if err != nil {
-		return err
-	}
-
-	// Add headers
-	req.Header.Add("Authorization", "Bearer "+bearerToken)
-	req.Header.Add("Content-Type", "application/json")
-
-	// Create an HTTP client and send the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 201 {
-		return errors.New(string(body))
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

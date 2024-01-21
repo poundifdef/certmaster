@@ -1,12 +1,12 @@
 package models
 
 type CertRequest struct {
-	RequesterEmail   string              `json:"email"`
-	Domain           string              `json:"domain"`
-	DNSCredentials   map[string]string   `json:"dns"`
-	Destinations     []map[string]string `json:"destinations"`
-	UseDummyCert     bool                `json:"dummy"`
-	StageEnvironment bool                `json:"stage"`
+	RequesterEmail   string            `json:"email"`
+	Domain           string            `json:"domain"`
+	DNSCredentials   map[string]string `json:"dns"`
+	Destinations     []map[string]any  `json:"destinations"`
+	UseDummyCert     bool              `json:"dummy"`
+	StageEnvironment bool              `json:"stage"`
 }
 
 type CertResponse struct {

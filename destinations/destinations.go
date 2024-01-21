@@ -69,8 +69,8 @@ func ListConfigFields(providerName string) []models.DestinationConfig {
 	return rc
 }
 
-func Upload(request models.CertRequest, cert *certificate.Resource, config map[string]string) error {
-	providerName := config["provider"]
+func Upload(request models.CertRequest, cert *certificate.Resource, config map[string]any) error {
+	providerName := config["provider"].(string)
 
 	var d Destination = GetDestination(providerName)
 	if d == nil {

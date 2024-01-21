@@ -60,7 +60,7 @@ func setEnvVars(vars map[string]string) error {
 	return nil
 }
 
-func uploadCertToDestination(request models.CertRequest, cert *certificate.Resource, destination map[string]string) error {
+func uploadCertToDestination(request models.CertRequest, cert *certificate.Resource, destination map[string]any) error {
 	return destinations.Upload(request, cert, destination)
 }
 
@@ -115,7 +115,7 @@ func createCert(request *models.CertRequest) error {
 	var cert *certificate.Resource
 
 	if request.UseDummyCert {
-		cert = GetDummyCert()
+		cert = GetDummyCert(request.Domain)
 	} else {
 		cert, err = requestCertificates(request.Domain, request.RequesterEmail, request.DNSCredentials["provider"], request.StageEnvironment)
 		if err != nil {
