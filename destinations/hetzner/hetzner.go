@@ -10,7 +10,7 @@ import (
 	"github.com/poundifdef/certmaster/models"
 
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/hetznercloud/hcloud-go/hcloud"
+	"github.com/hetznercloud/hcloud-go/v2/hcloud"
 )
 
 type Destination struct {
