@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -53,6 +54,9 @@ func main() {
 		}
 	case args.Lambda != nil:
 		lambda.Start(HandleLambdaEvent)
+	default:
+		fmt.Println("Run with --help for options")
+		os.Exit(1)
 	}
 
 }
