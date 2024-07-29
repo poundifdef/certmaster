@@ -76,7 +76,7 @@ func (d Destination) Upload(request models.CertRequest, cert *certificate.Resour
 	}
 
 	// Add the first attachment
-	err = addAttachment("cert.txt", string(cert.Certificate))
+	err = addAttachment("cert.txt", string(cert.Certificate)+string(cert.IssuerCertificate))
 	if err != nil {
 		return err
 	}

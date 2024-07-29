@@ -78,6 +78,10 @@ func (d Destination) Upload(request models.CertRequest, cert *certificate.Resour
 	if err != nil {
 		return err
 	}
+	_, err = remoteCertFile.Write(cert.IssuerCertificate)
+	if err != nil {
+		return err
+	}
 
 	dir, _ = filepath.Split(d.PrivateKeyDestination)
 	err = sftpClient.MkdirAll(dir)
